@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>사주 만세력 계산기</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Noto Sans KR", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 900px;
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 40px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+      font-size: 1.05em;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1em;
+      font-family: "Noto Sans KR", sans-serif;
+      transition: border-color 0.3s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    button {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.05em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: "Noto Sans KR", sans-serif;
+    }
+
+    .btn-calculate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-calculate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-reset {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-reset:hover {
+      background: #e0e0e0;
+    }
+
+    .result {
+      margin-top: 40px;
+      display: none;
+    }
+
+    .result.show {
+      display: block;
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .result-header h2 {
+      font-size: 1.8em;
+      margin-bottom: 5px;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    @media (max-width: 600px) {
+      .pillars-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .pillar-card {
+      background: #f9f9f9;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .pillar-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+    }
+
+    .pillar-name {
+      font-size: 0.9em;
+      color: #999;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .pillar-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .pillar-element {
+      font-size: 0.95em;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      font-weight: 600;
+    }
+
+    .element-목 {
+      background: #2ecc71;
+    }
+
+    .element-화 {
+      background: #e74c3c;
+    }
+
+    .element-토 {
+      background: #f39c12;
+    }
+
+    .element-금 {
+      background: #95a5a6;
+    }
+
+    .element-수 {
+      background: #3498db;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid #667eea;
+    }
+
+    .lunar-info {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+
+    .element-bar {
+      background: #f0f0f0;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .element-name {
+      font-weight: 600;
+      min-width: 50px;
+      color: #333;
+    }
+
+    .element-graph {
+      flex: 1;
+      height: 30px;
+      background: white;
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      display: flex;
+    }
+
+    .element-fill {
+      height: 100%;
+      transition: width 0.5s ease-out;
+    }
+
+    .element-count {
+      min-width: 40px;
+      text-align: right;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .fortune-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .fortune-item {
+      background: #f9f9f9;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+    }
+
+    .fortune-item-label {
+      font-size: 0.9em;
+      color: #999;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .fortune-item-value {
+      font-size: 1.3em;
+      color: #333;
+      font-weight: 700;
+    }
+
+    .error {
+      background: #fee;
+      border: 2px solid #fcc;
+      color: #c00;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      display: none;
+    }
+
+    .error.show {
+      display: block;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+      font-weight: 600;
+      display: none;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎋 사주 만세력 계산기</h1>
+      <p>정확한 음양력 변환과 사주 분석</p>
+    </div>
+
+    <div class="content">
+      <form id="mansaeForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="birthDate">생년월일 (양력)</label>
+            <input
+              type="date"
+              id="birthDate"
+              required
+              min="1000-02-13"
+              max="2050-12-31"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="birthTime">생시</label>
+            <input type="time" id="birthTime" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="gender">성별</label>
+          <select id="gender" required>
+            <option value="">선택하세요</option>
+            <option value="남">남성</option>
+            <option value="여">여성</option>
+          </select>
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="btn-calculate">만세력 계산</button>
+          <button type="reset" class="btn-reset">초기화</button>
+        </div>
+      </form>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>계산 중입니다...</p>
+      </div>
+
+      <div class="error" id="error"></div>
+
+      <div class="result" id="result">
+        <div class="result-header">
+          <h2>📊 사주 분석 결과</h2>
+          <p id="resultDate"></p>
+        </div>
+
+        <div class="lunar-info">
+          <strong>🌙 음력:</strong> <span id="lunarDate"></span>
+        </div>
+
+        <div class="section">
+          <h3 class="section-title">⚡ 네 기둥 (四柱)</h3>
+          <div class="pillars-grid">
+            <div class="pillar-card">
+              <div class="pillar-name">연주 (年柱)</div>
+              <div class="pillar-value" id="yearPillar"></div>
+              <div class="pillar-element" id="yearElement"></div>
+            </div>
+            <div class="pillar-card">
+              <div class="pillar-name">월주 (月柱)</div>
+              <div class="pillar-value" id="monthPillar"></div>
+              <div class="pillar-element" id="monthElement"></div>
+            </div>
+            <div class="pillar-card">
+              <div class="pillar-name">일주 (日柱)</div>
+              <div class="pillar-value" id="dayPillar"></div>
+              <div class="pillar-element" id="dayElement"></div>
+            </div>
+            <div class="pillar-card">
+              <div class="pillar-name">시주 (時柱)</div>
+              <div class="pillar-value" id="hourPillar"></div>
+              <div class="pillar-element" id="hourElement"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3 class="section-title">🌊 오행 (五行) 분포</h3>
+          <div id="elementsGraph"></div>
+        </div>
+
+        <div class="section">
+          <h3 class="section-title">🔮 대운 정보</h3>
+          <div class="fortune-grid">
+            <div class="fortune-item">
+              <div class="fortune-item-label">일주 천간 (日干)</div>
+              <div class="fortune-item-value" id="dayMaster"></div>
+            </div>
+            <div class="fortune-item">
+              <div class="fortune-item-label">년주 지지 (年支)</div>
+              <div class="fortune-item-value" id="yearBranch"></div>
+            </div>
+            <div class="fortune-item">
+              <div class="fortune-item-label">성별</div>
+              <div class="fortune-item-value" id="genderDisplay"></div>
+            </div>
+            <div class="fortune-item">
+              <div class="fortune-item-label">대운 방향</div>
+              <div class="fortune-item-value" id="cycleDirection"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import KoreanLunarCalendar from "./dist/korean-lunar-calendar.min.js";
+
+    // 십간십지 배열
+    const heavenlyStems = [
+      "갑",
+      "을",
+      "병",
+      "정",
+      "무",
+      "기",
+      "경",
+      "신",
+      "임",
+      "계",
+    ];
+    const earthlyBranches = [
+      "자",
+      "축",
+      "인",
+      "묘",
+      "진",
+      "사",
+      "오",
+      "미",
+      "신",
+      "유",
+      "술",
+      "해",
+    ];
+
+    // 오행 매핑
+    const elementMap = {
+      갑: "목",
+      을: "목",
+      병: "화",
+      정: "화",
+      무: "토",
+      기: "토",
+      경: "금",
+      신: "금",
+      임: "수",
+      계: "수",
+    };
+
+    const elementColors = {
+      목: { color: "#2ecc71", name: "Wood" },
+      화: { color: "#e74c3c", name: "Fire" },
+      토: { color: "#f39c12", name: "Earth" },
+      금: { color: "#95a5a6", name: "Metal" },
+      수: { color: "#3498db", name: "Water" },
+    };
+
+    // 간지 파싱
+    function parseGapja(gapjaStr) {
+      if (!gapjaStr) return null;
+      const koreanPart = gapjaStr.split("(")[0];
+      if (koreanPart.length >= 2) {
+        return {
+          stem: koreanPart[0],
+          branch: koreanPart[1],
+          full: gapjaStr,
+        };
+      }
+      return null;
+    }
+
+    // 시주 계산
+    function calculateHourPillar(dayStem, birthHour) {
+      const dayStemIndex = heavenlyStems.indexOf(dayStem);
+      if (dayStemIndex === -1) return null;
+
+      const hourBranchMap = {
+        0: 0,
+        1: 0,
+        2: 1,
+        3: 1,
+        4: 2,
+        5: 2,
+        6: 3,
+        7: 3,
+        8: 4,
+        9: 4,
+        10: 5,
+        11: 5,
+        12: 6,
+        13: 6,
+        14: 7,
+        15: 7,
+        16: 8,
+        17: 8,
+        18: 9,
+        19: 9,
+        20: 10,
+        21: 10,
+        22: 11,
+        23: 11,
+      };
+
+      const hourBranchIndex = hourBranchMap[birthHour];
+      const hourStemIndex = (dayStemIndex * 2 + hourBranchIndex) % 10;
+
+      return {
+        stem: heavenlyStems[hourStemIndex],
+        branch: earthlyBranches[hourBranchIndex],
+        full: heavenlyStems[hourStemIndex] + earthlyBranches[hourBranchIndex],
+      };
+    }
+
+    // 오행 계산
+    function calculateElements(yearPillar, monthPillar, dayPillar, hourPillar) {
+      const pillars = [yearPillar, monthPillar, dayPillar, hourPillar];
+      const elements = {};
+
+      pillars.forEach((pillar) => {
+        if (!pillar) return;
+        const stem = pillar.stem;
+        const element = elementMap[stem];
+        elements[element] = (elements[element] || 0) + 1;
+      });
+
+      return elements;
+    }
+
+    // 만세력 계산
+    function calculateMansae(birthDate, birthTime, gender) {
+      try {
+        const [year, month, day] = birthDate.split("-").map(Number);
+        const [hour] = birthTime.split(":").map(Number);
+
+        const calendar = new KoreanLunarCalendar();
+        const result = calendar.setSolarDate(year, month, day);
+
+        if (!result) {
+          throw new Error(
+            "날짜가 지원 범위를 벗어났습니다. (1000-02-13 ~ 2050-12-31)"
+          );
+        }
+
+        const lunarData = calendar.getLunarCalendar();
+        const koreanGapja = calendar.getKoreanGapja();
+
+        const yearPillar = parseGapja(koreanGapja.year);
+        const monthPillar = parseGapja(koreanGapja.month);
+        const dayPillar = parseGapja(koreanGapja.day);
+        const hourPillar = calculateHourPillar(dayPillar.stem, hour);
+
+        const elements = calculateElements(
+          yearPillar,
+          monthPillar,
+          dayPillar,
+          hourPillar
+        );
+
+        return {
+          input: {
+            solarDate: birthDate,
+            birthTime: birthTime,
+            gender: gender,
+          },
+          lunar: {
+            year: lunarData.year,
+            month: lunarData.month,
+            day: lunarData.day,
+            lunarDateStr: `${lunarData.year}년 ${lunarData.month}월 ${lunarData.day}일`,
+          },
+          pillars: {
+            year: {
+              korean: yearPillar.stem + yearPillar.branch,
+              element: elementMap[yearPillar.stem],
+            },
+            month: {
+              korean: monthPillar.stem + monthPillar.branch,
+              element: elementMap[monthPillar.stem],
+            },
+            day: {
+              korean: dayPillar.stem + dayPillar.branch,
+              element: elementMap[dayPillar.stem],
+            },
+            hour: {
+              korean: hourPillar.stem + hourPillar.branch,
+              element: elementMap[hourPillar.stem],
+            },
+          },
+          elements: elements,
+          fortune: {
+            gender: gender,
+            cycleDirection:
+              gender === "남" || gender === "male" ? "정순" : "역순",
+            dayMasterStem: dayPillar.stem,
+            yearBranch: yearPillar.branch,
+          },
+        };
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    // UI 업데이트
+    function updateUI(result) {
+      // 기본 정보
+      document.getElementById("resultDate").textContent =
+        `${result.input.solarDate} ${result.input.birthTime}`;
+      document.getElementById("lunarDate").textContent =
+        result.lunar.lunarDateStr;
+
+      // 네 기둥
+      document.getElementById("yearPillar").textContent =
+        result.pillars.year.korean;
+      document.getElementById("yearElement").className =
+        `pillar-element element-${result.pillars.year.element}`;
+      document.getElementById("yearElement").textContent =
+        result.pillars.year.element;
+
+      document.getElementById("monthPillar").textContent =
+        result.pillars.month.korean;
+      document.getElementById("monthElement").className =
+        `pillar-element element-${result.pillars.month.element}`;
+      document.getElementById("monthElement").textContent =
+        result.pillars.month.element;
+
+      document.getElementById("dayPillar").textContent =
+        result.pillars.day.korean;
+      document.getElementById("dayElement").className =
+        `pillar-element element-${result.pillars.day.element}`;
+      document.getElementById("dayElement").textContent =
+        result.pillars.day.element;
+
+      document.getElementById("hourPillar").textContent =
+        result.pillars.hour.korean;
+      document.getElementById("hourElement").className =
+        `pillar-element element-${result.pillars.hour.element}`;
+      document.getElementById("hourElement").textContent =
+        result.pillars.hour.element;
+
+      // 오행 분포
+      const allElements = ["목", "화", "토", "금", "수"];
+      const maxCount = Math.max(...Object.values(result.elements), 1);
+      let elementsHTML = "";
+
+      allElements.forEach((elem) => {
+        const count = result.elements[elem] || 0;
+        const percentage = (count / maxCount) * 100;
+        const color = elementColors[elem].color;
+        elementsHTML += `
+          <div class="element-bar">
+            <div class="element-name">${elem}</div>
+            <div class="element-graph">
+              <div class="element-fill" style="width: 0%; background: ${color}; transition: width 0.8s ease-out;"></div>
+            </div>
+            <div class="element-count">${count}개</div>
+          </div>
+        `;
+      });
+
+      document.getElementById("elementsGraph").innerHTML = elementsHTML;
+
+      // 애니메이션 효과
+      setTimeout(() => {
+        document.querySelectorAll(".element-fill").forEach((el, idx) => {
+          const count = result.elements[allElements[idx]] || 0;
+          const percentage = (count / maxCount) * 100;
+          el.style.width = percentage + "%";
+        });
+      }, 50);
+
+      // 대운 정보
+      document.getElementById("dayMaster").textContent =
+        result.fortune.dayMasterStem;
+      document.getElementById("yearBranch").textContent =
+        result.fortune.yearBranch;
+      document.getElementById("genderDisplay").textContent =
+        result.input.gender === "남" ? "남성" : "여성";
+      document.getElementById("cycleDirection").textContent =
+        result.fortune.cycleDirection;
+    }
+
+    // 폼 제출
+    document
+      .getElementById("mansaeForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const birthDate = document.getElementById("birthDate").value;
+        const birthTime = document.getElementById("birthTime").value;
+        const gender = document.getElementById("gender").value;
+
+        const loading = document.getElementById("loading");
+        const error = document.getElementById("error");
+        const result = document.getElementById("result");
+
+        loading.classList.add("show");
+        error.classList.remove("show");
+        result.classList.remove("show");
+
+        try {
+          const mansaeResult = calculateMansae(birthDate, birthTime, gender);
+          loading.classList.remove("show");
+          updateUI(mansaeResult);
+          result.classList.add("show");
+        } catch (err) {
+          loading.classList.remove("show");
+          error.classList.add("show");
+          error.textContent = "❌ " + err.message;
+        }
+      });
+
+    // 기본값 설정
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    document.getElementById("birthDate").value = `${year}-${month}-${day}`;
+    document.getElementById("birthTime").value = "12:00";
+  </script>
+</body>
+</html>

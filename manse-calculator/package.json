@@ -1,0 +1,17 @@
+{
+  "name": "mansae-calculator",
+  "version": "1.0.0",
+  "description": "사주 만세력 계산기",
+  "main": "mansae.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "web": "python3 -m http.server 8000 || npx http-server"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "korean-lunar-calendar": "^0.3.6"
+  },
+  "type": "module"
+}
